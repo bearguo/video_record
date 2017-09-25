@@ -24,6 +24,7 @@ def allow_cross_domain(fun):
         allow_headers = "Referer,Accept,Origin,User-Agent"
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
         return rst
+
     return wrapper_fun
 
 
@@ -46,8 +47,7 @@ def status(id):
 
 @app.route('/replay-client/am')
 def am():
-    op = request.values.get('op')
-    c = request.values.get('c')
+    op, c = request.values.get('op'), request.values.get('c')
     if op == 'start':
         start_channel(c)
     elif op == 'kill':

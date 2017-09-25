@@ -1,40 +1,60 @@
 import pymysql.cursors
 import configparser
 import os
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from global_var import *
 
 cf = configparser.ConfigParser()
-cf.read(cur_path+'replay.conf')
+cf.read(cur_path + 'replay.conf')
 
-HOST = cf.get('db','host')
-PORT = cf.getint('db','port')
-USER = cf.get('db','user')
-PASSWORD = cf.get('db','password')
-
-
-
-def connect():
-    conn = pymysql.connect(host=HOST,
-                           port=PORT,
-                           user=USER,
-                           password=PASSWORD,
-                           db='tsrtmp',
-                           charset='utf8mb4',
-                           cursorclass=pymysql.cursors.DictCursor)
-
-    return conn
+HOST = cf.get('db', 'host')
+PORT = cf.getint('db', 'port')
+USER = cf.get('db', 'user')
+PASSWORD = cf.get('db', 'password')
 
 
+class Connect():
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        self.connect = pymysql.connect(host=HOST,
+                                       port=PORT,
+                                       user=USER,
+                                       password=PASSWORD,
+                                       db='tsrtmp',
+                                       charset='utf8mb4',
+                                       cursorclass=pymysql.cursors.DictCursor)
+        return self.connect
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.connect.close()
+
+
+# def connect():
+#     conn = pymysql.connect(host=HOST,
+#                            port=PORT,
+#                            user=USER,
+#                            password=PASSWORD,
+#                            db='tsrtmp',
+#                            charset='utf8mb4',
+#                            cursorclass=pymysql.cursors.DictCursor)
+#
+#     return conn
+
+'''
+Get channel information by channel_id,return data fields.
+return dictionary
+    eg.:{'start': 0, 'sort': 0, 'rtmp_url': 'http://localhost/CCTV1.m3u8', 'client_ip': 'localhost:8080',
+             'PID': None, 'channel_name': 'CCTV1', 'channel_id': 'CCTV1', 'id': 1, 'PGID': None, 'active': 0}
+'''
 def get_channel_info(channel_id):
-    conn = connect()
-    with conn.cursor() as cursor:
-        sql = "SELECT * FROM channel WHERE channel_id = '%s'" % channel_id
-        cursor.execute(sql)
-        result = cursor.fetchone()
-        # print(result)
-
-    conn.close()
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM channel WHERE channel_id = \'%s\'" % channel_id
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            # print(result)
     return result
 
 
@@ -42,31 +62,14 @@ def get_live_url(channel_id):
     return get_channel_info(channel_id)['rtmp_url']
 
 
-
 def get_udp_port(channel_id):
     port = str(get_channel_info(channel_id)['client_ip'])
 
     if port.__contains__(':'):
-        res = port[port.rfind(':')+1:]
+        res = port[port.rfind(':') + 1:]
         return int(res)
     else:
         return None
-
-
-def set_start(channel_id,active):
-    conn = connect()
-    status = ''
-    if active:
-        status = '1'
-    else:
-        status = '0'
-
-    with conn.cursor() as cursor:
-        sql = "UPDATE channel SET start = %s WHERE channel_id = '%s'" % (status,channel_id)
-        cursor.execute(sql)
-        conn.commit()
-
-    conn.close()
 
 
 def is_start(channel_id):
@@ -76,16 +79,31 @@ def is_start(channel_id):
     else:
         return False
 
-def get_available_program(channel_id,START_TIME):
-    conn = connect()
-    ret = []
-    with conn.cursor() as cursor:
-        sql = "SELECT DATE_FORMAT(start_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS st, \
-                         DATE_FORMAT(end_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS et,title,event_id \
-                         FROM program WHERE channel_id = '%s' AND finished = 0 \
-                         ORDER BY end_time" % channel_id
-        cursor.execute(sql)
-        result = cursor.fetchall()
+
+def set_start(channel_id, active):
+    with Connect() as conn:
+        status = ''
+        if active:
+            status = '1'
+        else:
+            status = '0'
+
+        with conn.cursor() as cursor:
+            sql = "UPDATE channel SET start = %s WHERE channel_id = \'%s\'" % (status, channel_id)
+            cursor.execute(sql)
+            conn.commit()
+
+
+def get_available_program(channel_id, START_TIME):
+    with Connect() as conn:
+        ret = []
+        with conn.cursor() as cursor:
+            sql = "SELECT DATE_FORMAT(start_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS st, \
+                             DATE_FORMAT(end_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS et,title,event_id \
+                             FROM program WHERE channel_id = \'%s\' AND finished = 0 \
+                             ORDER BY end_time" % channel_id
+            cursor.execute(sql)
+            result = cursor.fetchall()
 
     now = datetime.now()
 
@@ -98,51 +116,40 @@ def get_available_program(channel_id,START_TIME):
 
 
 def delete_program(channel_id):
-    conn = connect()
-
-    with conn.cursor() as cursor:
-        sql = "DELETE FROM program WHERE channel_id='%s' and finished=0" % channel_id
-        cursor.execute(sql)
-        conn.commit()
-
-    conn.close()
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM program WHERE channel_id=\'%s\' and finished=0" % channel_id
+            cursor.execute(sql)
+            conn.commit()
 
 
 def insert_program(event_id, channel_id, st, et, title):
-    conn = connect()
-
-    with conn.cursor() as cursor:
-        sql = "INSERT IGNORE INTO program(event_id,channel_id,start_time,end_time,title) \
-                                            VALUES ('%s','%s','%s','%s','%s')" % \
-                                                (event_id, channel_id, st, et, title)
-        cursor.execute(sql)
-        conn.commit()
-
-    conn.close()
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "INSERT IGNORE INTO program(event_id,channel_id,start_time,end_time,title) \
+                                                VALUES ('%s','%s','%s','%s','%s')" % \
+                  (event_id, channel_id, st, et, title)
+            cursor.execute(sql)
+            conn.commit()
 
 
-def update_url(channel_id,url,event_id):
-    conn = connect()
-
-    with conn.cursor() as cursor:
-        sql = "UPDATE program SET finished = 1, url = '%s' \
-                        WHERE event_id = '%s'" % (url, event_id)
-        cursor.execute(sql)
-        conn.commit()
-
-    # print('update url ' + url)
-    conn.close()
+def update_url(channel_id, url, event_id):
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "UPDATE program SET finished = 1, url = \'%s\' \
+                            WHERE event_id = \'%s\'" % (url, event_id)
+            cursor.execute(sql)
+            conn.commit()
+        # print('update url ' + url)
 
 
-def delete_expire_program(channel_id,expire=8):
-    conn = connect()
-
-    with conn.cursor() as cursor:
-        sql = "DELETE FROM program WHERE channel_id = '%s' AND end_time < DATE_SUB(NOW(), INTERVAL %d DAY)" % (channel_id,expire)
-        cursor.execute(sql)
-        conn.commit()
-
-    conn.close()
+def delete_expire_program(channel_id, expire=8):
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM program WHERE channel_id = \'%s\' AND end_time < DATE_SUB(NOW(), INTERVAL %d DAY)" % (
+                channel_id, expire)
+            cursor.execute(sql)
+            conn.commit()
 
 
 if __name__ == '__main__':
@@ -159,7 +166,5 @@ if __name__ == '__main__':
     # print(get_available_program('CCTV2',datetime.now()-timedelta(days=2)))
 
     # print("DELETE FROM program WHERE channel_id = '%s' AND end_time < DATE_SUB(NOW(), INTERVAL %d DAY)" % ('CCTV1',8))
-
-    print(get_udp_port('CCTV2'))
-
-
+    get_channel_info('CCTV1')
+    # print(get_udp_port('CCTV2'))
