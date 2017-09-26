@@ -183,7 +183,7 @@ def Dump2(channel_id):
     # url = str(dbutil.get_live_url(channel_id))  # udp://1.8.23.93:10000
     port = dbutil.get_udp_port(channel_id)
     # ip = get_udp_ip(url)
-    if port == None:
+    if port is None:
         error_map[channel_id] = "wrong stream"
         # ldbutil.update_err(channel_id, 'wrong stream')
         dbutil.set_start(channel_id, False)
@@ -192,12 +192,12 @@ def Dump2(channel_id):
     #     error_map[channel_id] = "wrong url"
     #     return
 
-    channel_path = html_path + channel_id
+    channel_path = os.path.join(html_path, channel_id)
 
     if not os.path.exists(channel_path + '/'):
         os.makedirs(channel_path + '/')
 
-    logger = logutil.getLogger(channel_path + '/' + channel_id + '.log', name=channel_id)
+    logger = logutil.getLogger(os.path.join(channel_path, channel_id + '.log'), name=channel_id)
 
     try:
         while True:
@@ -213,39 +213,31 @@ def Dump2(channel_id):
 
             time.sleep(60 * 5)
     finally:
-
         dbutil.set_start(channel_id, False)
 
 
 def kill(channel_id):
     global channel_map
     try:
-        if channel_id not in channel_map:
-            return
-        else:
+        if channel_id in channel_map:
             process = channel_map[channel_id]
             process.terminate()
-            print('kill ' + channel_id)
-            process.join()
-            # pid = process.pid
-            # os.kill(pid, signal.SIGKILL)
-    except:
-        pass
-        # print('kill ' + channel_id + ' error')
+            update_logger.info('kill ' + channel_id)
+        else:
+            raise ValueError('channel_id(%s) to be killed is not exist!'%channel_id)
+    except Exception as e:
+        update_logger.exception(e)
     finally:
         error_map[channel_id] = 'killed'
-        # ldbutil.update_err(channel_id, 'killed')
         dbutil.set_start(channel_id, False)
         if channel_id in channel_map:
-            del channel_map[channel_id]
-        update_logger.debug('kill ' + channel_id)
+            channel_map.pop(channel_id)
+        update_logger.info('kill ' + channel_id + ' done.')
 
 
 def delete_folder(folder):
     shutil.rmtree(folder)
     print('rm success')
-
-    pass
 
 
 def worker(lock):
