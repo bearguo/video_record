@@ -11,6 +11,8 @@ cf.read(cur_path+'replay.conf')
 
 EPG_URL = cf.get('dump','epg_url')
 
+
+@try_and_log
 def update(channel_id):
     # print(EPG_URL + channel_id)
     try:

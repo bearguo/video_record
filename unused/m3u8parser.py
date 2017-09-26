@@ -10,17 +10,10 @@ class TSFile():
         return self.name + ' ' + str(self.inf)
 
 def getM3U8(url):
-    # f = ul.urlopen(url)
-
-    # fout = open('stream1.m3u8', 'wb')
-    # fout.writelines(f)
-    # fout.close()
-
     ret = []
     try:
         f = ul.urlopen(url)
         line = f.readline()
-
         while line != b"":
             # print(str(line))
             line = f.readline()
@@ -29,7 +22,7 @@ def getM3U8(url):
                 name = str(f.readline())
                 tsFile = TSFile(inf[inf.find(":") + 1:inf.__len__() - 3], name[2:name.__len__() - 3])
                 ret.append(tsFile)
-                # print(tsFile.inf + '  ' +  tsFile.name + '  ' +  str(tsFile.index))
+
     finally:
         pass
 
@@ -54,23 +47,29 @@ if __name__ == '__main__':
     #     fout.writelines(getTS("http://1.8.203.198/live/" + file.name))
     #     fout.close()
 
-    f = ul.urlopen("http://1.8.203.198/live/stream1.m3u8")
-    fout = open('stream1.m3u8', 'wb')
-    fout.writelines(f)
-    fout.close()
-
-    list = getM3U8("http://1.8.203.198/live/stream1.m3u8")
-
-    for i in list:
-        print(i)
+    try:
+        f = ul.urlopen("http://1.8.23.98/live/stream9.m3u")
+    except Exception as e :
+        update_logger.debug(str(e))
 
 
-
-    for file in list:
-        for file in list:
-            fout = open(file.name,'wb')
-            fout.writelines(getTS("http://1.8.203.198/live/" + file.name))
-            fout.close()
+    # print(type(f))
+    # fout = open('stream1.m3u8', 'wb')
+    # fout.writelines(f)
+    # fout.close()
+    #
+    # list = getM3U8("http://1.8.203.198/live/stream1.m3u8")
+    #
+    # for i in list:
+    #     print(i)
+    #
+    #
+    #
+    # for file in list:
+    #     for file in list:
+    #         fout = open(file.name,'wb')
+    #         fout.writelines(getTS("http://1.8.203.198/live/" + file.name))
+    #         fout.close()
 
 
 

@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 import time
-import m3u8parser
 import m3u8maker
-from m3u8parser import TSFile
 import threading
 import os
 import configparser
@@ -17,9 +15,7 @@ import ldbutil
 from ctypes import *
 from global_var import *
 
-cf = configparser.ConfigParser()
-cf.read(cur_path + 'replay.conf')
-html_path = cf.get('dump', 'html_path')
+
 channel_map = {}
 error_map = {}
 manager = Manager()
@@ -30,7 +26,6 @@ START_TIME = datetime.now() - timedelta(hours=1)
 UPDATE_FREQUENCE = cf.getint('dump', 'update_frequence')
 IP = cf.get('server', 'ip')
 EXPIRE = cf.getint('dump', 'expire') + 1
-update_logger = logutil.getLogger(html_path + 'dump.log', name='dump')
 libtest = cdll.LoadLibrary(cur_path + 'libUDP2HLS.so.1.0.0')
 libtest.dump.argtype = [c_int, c_char_p, c_int]
 dump = libtest.dump
