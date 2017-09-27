@@ -63,13 +63,16 @@ def get_live_url(channel_id):
 
 
 def get_udp_port(channel_id):
-    port = str(get_channel_info(channel_id)['client_ip'])
-
-    if port.__contains__(':'):
-        res = port[port.rfind(':') + 1:]
-        return int(res)
-    else:
-        return None
+    address = str(get_channel_info(channel_id)['client_ip'])
+    port = None
+    try:
+        if ':' in address:
+            port_str = address[address.rfind(':') + 1:]
+            port =  int(port_str) # make sure port_str is a number
+    except Exception as e:
+        update_logger.exception(e)
+    finally:
+        return port
 
 
 def is_start(channel_id):
@@ -96,7 +99,6 @@ def set_start(channel_id, active):
 
 def get_available_program(channel_id, START_TIME):
     with Connect() as conn:
-        ret = []
         with conn.cursor() as cursor:
             sql = "SELECT DATE_FORMAT(start_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS st, \
                              DATE_FORMAT(end_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS et,title,event_id \
@@ -106,12 +108,11 @@ def get_available_program(channel_id, START_TIME):
             result = cursor.fetchall()
 
     now = datetime.now()
-
-    for program in result:
-        et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
-        if START_TIME < et < now:
-            ret.append(program)
-
+    # for program in result:
+    #     et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
+    #     if START_TIME < et < now:
+    #         ret.append(program)
+    ret = [program for program in result if START_TIME < datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S') < now]
     return ret
 
 
