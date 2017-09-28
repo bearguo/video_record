@@ -159,18 +159,18 @@ def get_udp_ip(url):
 
 def Dump2(channel_id):
     global error_map
-    update_logger.debug('start ' + channel_id)
+    update_logger.info('start record %s' % channel_id)
     port = dbutil.get_udp_port(channel_id)
     if port is None:
-        error_map[channel_id] = "wrong stream"
+        error_map[channel_id] = 'wrong stream'
+        update_logger.error('channel %s \'s address don\'t have a port number!' % channel_id)
         dbutil.set_start(channel_id, False)
         return
 
     channel_path = os.path.join(html_path, channel_id)
-
     if not os.path.exists(channel_path):
+        update_logger.info('create path: %s' % channel_path)
         os.makedirs(channel_path)
-
     logger = logutil.getLogger(os.path.join(channel_path, channel_id + '.log'), name=channel_id)
 
     try:
@@ -180,7 +180,7 @@ def Dump2(channel_id):
             res = dump(port, channel_path.encode(), 60)
             if res != 0:
                 error_map[channel_id] = "no stream"
-                logger.debug(channel_id + ' stopped!')
+                logger.debug(channel_id + ' stopped by dump()!')
             time.sleep(60 * 5)
     except Exception as e:
         logger.exception(e)

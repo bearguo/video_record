@@ -19,8 +19,8 @@ def getLogger(filename, name=None):
 
     # interval: how many numbers of 'when' will keep the log file
     # backupCount: how many old log files will keep.
-    log_file_handler = TimedRotatingFileHandler(filename=filename, when="D", interval=30, backupCount=3)
-    # log_file_handler = RotatingFileHandler(filename=filename, maxBytes=50*1024*1024, backupCount=2)
+    # log_file_handler = TimedRotatingFileHandler(filename=filename, when="D", interval=30, backupCount=3)
+    log_file_handler = RotatingFileHandler(filename=filename, maxBytes=50*1024*1024, backupCount=3)
 
     log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s(line %(lineno)d) - %(levelname)s - %(message)s'))
     logger.setLevel(LEVEL)

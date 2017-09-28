@@ -27,7 +27,6 @@ def get_inf_from_filename(filename):
     return filename[-9:-3]
 
 
-
 if __name__ == '__main__':
     print(filename2time('20161123','1523-73.558.ts'))
     print(get_inf_from_filename('1523-73.558.ts'))
