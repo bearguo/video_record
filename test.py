@@ -25,10 +25,19 @@ class Connect():
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.connect = "bye"
 
+
+def divide():
+    try:
+        raise ValueError('hello error')
+    except Exception as e:
+        print(e)
+
+
 if __name__ == "__main__":
     with Connect() as tmp:
         print(tmp.connect)
     print(tmp.connect)
+    divide()
     # print("main pid : %s" % os.getpid())
     #
     # time.sleep(2)

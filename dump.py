@@ -35,6 +35,46 @@ def update():
     t = threading.Timer(UPDATE_FREQUENCE * 60, update_schedule)
     t.start()
 
+def updateEpg():
+    for channel_id in channel_map:
+        if channel_map[channel_id].is_alive():
+            epg.update(channel_id)
+            update_logger.debug('update epg :' + channel_id)
+
+def updateM3u8File():
+    for channel_id in channel_map:
+        if channel_map[channel_id].is_alive():
+            list = dbutil.get_available_program(channel_id, START_TIME)
+            update_logger.debug(channel_id + '  available list' + str(list))
+            for program in list:
+                st = datetime.strptime(program['st'], '%Y-%m-%d %H:%M:%S')
+                et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
+                event_id = program['event_id']
+                create_m3u8_file(channel_id, st, et, event_id)
+                update_logger.debug('create m3u8 file ' + str(id))
+        else:
+            update_logger.debug('restart channel:' + channel_id)
+            # del channel_map[channel_id]
+            kill(channel_id)
+            start_channel(channel_id)
+
+
+def deleteExpireProgram(days=EXPIRE):
+    now = datetime.now()
+    for channel_id in channel_map:
+        dbutil.delete_expire_program(channel_id, expire=EXPIRE)
+        channel_path = os.path.join(html_path, channel_id)
+        for dir_path, dir_names, file_names in os.walk(channel_path):
+            # print(dir_names)
+            for dir_name in dir_names:
+                # print(dir_name)
+                t = dateutil.folder2time(dir_name)
+                if t is not None:
+                    print(t)
+                    if now - t > timedelta(days=days):
+                        folder = os.path.join(channel_path, dir_name)
+                        delete_folder(folder)
+                        update_logger.debug('delete ' + folder)
 
 def update_schedule():
     update_logger.debug('update!')
@@ -42,82 +82,49 @@ def update_schedule():
     update_logger.debug('channel_map --' + str(channel_map))
     try:
         if update_flag:
-            # create m3u8 file
-            for channel_id in channel_map:
-                if channel_map[channel_id].is_alive():
-                    list = dbutil.get_available_program(channel_id, START_TIME)
-                    update_logger.debug(channel_id + '  available list' + str(list))
-                    for program in list:
-                        st = datetime.strptime(program['st'], '%Y-%m-%d %H:%M:%S')
-                        et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
-                        event_id = program['event_id']
-                        create_m3u8_file(channel_id, st, et, event_id)
-                        update_logger.debug('create m3u8 file ' + str(id))
-                    pass
-                else:
-                    update_logger.debug('restart channel:' + channel_id)
-                    # del channel_map[channel_id]
-                    kill(channel_id)
-                    start_channel(channel_id)
+            updateEpg()
 
-            # update epg
-            for channel_id in channel_map:
-                if channel_map[channel_id].is_alive():
-                    epg.update(channel_id)
-                    update_logger.debug('update epg :' + channel_id)
+            # create m3u8 file
+            updateM3u8File()
 
             # delete
-            now = datetime.now()
-            for channel_id in channel_map:
-                dbutil.delete_expire_program(channel_id, expire=EXPIRE)
-                channel_path = html_path + channel_id + '/'
-                for dir_path, dir_names, file_names in os.walk(channel_path):
-                    # print(dir_names)
-                    for dir_name in dir_names:
-                        # print(dir_name)
-                        t = dateutil.folder2time(dir_name)
-                        if t != None:
-                            print(t)
-                            if now - t > timedelta(days=EXPIRE):
-                                delete_folder(channel_path + dir_name + '/')
-                                update_logger.debug('delete ' + channel_path + dir_name + '/')
+            deleteExpireProgram()
     finally:
         if update_flag:
             t = threading.Timer(UPDATE_FREQUENCE * 60, update_schedule)
             t.start()
 
-
-def create_m3u8_file(channel_id, st, et, event_id):
-    channel_path = html_path + channel_id + '/'
+def genFileList(folder, ts_path, st, et):
     file_list = []
-    folder = dateutil.get_folder_name(st)
-    ts_path = channel_path + folder + '/'
-
     for dir_path, dir_names, file_names in os.walk(ts_path):
         for file in file_names:
             t = dateutil.filename2time(folder, file)
-            if t == None:
+            if t is None:
                 continue
             if st < t < et:
-                file_list.append('../' + folder + '/' + file)
+                file_list.append(os.path.join(os.path.pardir, folder , file))
+    return file_list
+
+
+def create_m3u8_file(channel_id, st, et, event_id):
+    channel_path = os.path.join(html_path, channel_id)
+    folder = dateutil.get_folder_name(st)
+    ts_path = os.path.join(channel_path, folder)
+
+    file_list = genFileList(folder, ts_path,st,et)
 
     if st.day != et.day:
         folder = dateutil.get_folder_name(et)
-        ts_path = channel_path + folder + '/'
-        for dir_path, dir_names, file_names in os.walk(ts_path):
-            for file in file_names:
-                t = dateutil.filename2time(folder, file)
-                if t == None:
-                    continue
-                if st < t < et:
-                    file_list.append('../' + folder + '/' + file)
+        ts_path = os.path.join(channel_path, folder)
+        file_list += genFileList(folder,ts_path,st,et)
+
     file_list.sort()
 
     if len(file_list) != 0:
         filename = m3u8maker.create_m3u8_file(event_id, ts_path, file_list)
-        update_logger.debug('create file ' + filename)
-        if filename != None:
-            url = 'http://' + IP + '/' + channel_id + '/' + folder + '/' + filename
+        update_logger.debug('create m3u8 file: ' + filename)
+        if filename is not None:
+            url = 'http://%s/%s/%s/%s'%IP%channel_id%folder%filename
             dbutil.update_url(channel_id, url, event_id)
 
 
@@ -135,7 +142,6 @@ def start_channel(channel_id):
     process.start()
     channel_map[channel_id] = process
     epg.update(channel_id)
-    update_logger.debug('start ' + channel_id)
     # channel_map[channel_id] = os.getpid()
 
 
@@ -175,72 +181,60 @@ def get_udp_ip(url):
 
 def Dump2(channel_id):
     global error_map
-    # url = str(dbutil.get_live_url(channel_id))  # udp://1.8.23.93:10000
+    update_logger.debug('start ' + channel_id)
     port = dbutil.get_udp_port(channel_id)
-    # ip = get_udp_ip(url)
-    if port == None:
+    if port is None:
         error_map[channel_id] = "wrong stream"
         # ldbutil.update_err(channel_id, 'wrong stream')
         dbutil.set_start(channel_id, False)
         return
-    # if not IP.__eq__(ip):
-    #     error_map[channel_id] = "wrong url"
-    #     return
 
-    channel_path = html_path + channel_id
+    channel_path = os.path.join(html_path, channel_id)
 
     if not os.path.exists(channel_path + '/'):
         os.makedirs(channel_path + '/')
 
-    logger = logutil.getLogger(channel_path + '/' + channel_id + '.log', name=channel_id)
+    logger = logutil.getLogger(os.path.join(channel_path, channel_id + '.log'), name=channel_id)
 
     try:
         while True:
             error_map[channel_id] = "success"
-            logger.debug(channel_id + ' start')
+            logger.debug( '%s start record with dump()'%channel_id)
             # ldbutil.update_err(channel_id, 'success')
-
             res = dump(port, channel_path.encode(), 60)
             if res != 0:
                 error_map[channel_id] = "no stream"
                 logger.debug(channel_id + ' stopped!')
                 # ldbutil.update_err(channel_id, 'no stream')
-
             time.sleep(60 * 5)
+    except Exception as e:
+        logger.exception(e)
     finally:
-
         dbutil.set_start(channel_id, False)
 
 
 def kill(channel_id):
     global channel_map
     try:
-        if channel_id not in channel_map:
-            return
-        else:
+        if channel_id in channel_map:
             process = channel_map[channel_id]
             process.terminate()
-            print('kill ' + channel_id)
-            process.join()
-            # pid = process.pid
-            # os.kill(pid, signal.SIGKILL)
-    except:
-        pass
-        # print('kill ' + channel_id + ' error')
+            update_logger.info('kill ' + channel_id)
+        else:
+            raise ValueError('channel_id(%s) to be killed is not exist!'%channel_id)
+    except Exception as e:
+        update_logger.exception(e)
     finally:
         error_map[channel_id] = 'killed'
-        # ldbutil.update_err(channel_id, 'killed')
         dbutil.set_start(channel_id, False)
         if channel_id in channel_map:
-            del channel_map[channel_id]
-        update_logger.debug('kill ' + channel_id)
+            channel_map.pop(channel_id)
+        update_logger.info('kill ' + channel_id + ' done.')
 
 
 def delete_folder(folder):
     shutil.rmtree(folder)
     print('rm success')
-
-    pass
 
 
 def worker(lock):

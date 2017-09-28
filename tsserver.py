@@ -55,20 +55,7 @@ def am():
     return ''
 
 
-def update():
-    t = threading.Timer(10, update_schedule)
-    t.start()
-
-
-def update_schedule():
-    print('dump update!')
-    if update_flag:
-        t = threading.Timer(10, update_schedule)
-        t.start()
-
-
 if __name__ == '__main__':
-    # os.chdir('/home/share/replay/')
     dump.update()
     ldbutil.clear()
     app.run(host='0.0.0.0', port=9999, debug=False)
