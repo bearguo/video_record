@@ -4,13 +4,14 @@ import os
 from datetime import datetime, timedelta
 from global_var import *
 
-cf = configparser.ConfigParser()
-cf.read(cur_path + 'replay.conf')
-
-HOST = cf.get('db', 'host')
-PORT = cf.getint('db', 'port')
-USER = cf.get('db', 'user')
-PASSWORD = cf.get('db', 'password')
+try:
+    HOST = cf.get('db', 'host')
+    PORT = cf.getint('db', 'port')
+    USER = cf.get('db', 'user')
+    PASSWORD = cf.get('db', 'password')
+except Exception as e:
+    logging.exception(e)
+    exit(-1)
 
 
 class Connect():
@@ -48,6 +49,8 @@ return dictionary
     eg.:{'start': 0, 'sort': 0, 'rtmp_url': 'http://localhost/CCTV1.m3u8', 'client_ip': 'localhost:8080',
              'PID': None, 'channel_name': 'CCTV1', 'channel_id': 'CCTV1', 'id': 1, 'PGID': None, 'active': 0}
 '''
+
+
 def get_channel_info(channel_id):
     with Connect() as conn:
         with conn.cursor() as cursor:
@@ -68,7 +71,7 @@ def get_udp_port(channel_id):
     try:
         if ':' in address:
             port_str = address[address.rfind(':') + 1:]
-            port =  int(port_str) # make sure port_str is a number
+            port = int(port_str)  # make sure port_str is a number
     except Exception as e:
         update_logger.exception(e)
     finally:
@@ -125,6 +128,7 @@ def delete_program(channel_id):
 
 
 def insert_program(event_id, channel_id, st, et, title):
+    title = pymysql.escape_string(title)
     with Connect() as conn:
         with conn.cursor() as cursor:
             sql = "INSERT IGNORE INTO program(event_id,channel_id,start_time,end_time,title) \
@@ -141,7 +145,7 @@ def update_url(channel_id, url, event_id):
                             WHERE event_id = \'%s\'" % (url, event_id)
             cursor.execute(sql)
             conn.commit()
-        # print('update url ' + url)
+            # print('update url ' + url)
 
 
 def delete_expire_program(channel_id, expire=8):
