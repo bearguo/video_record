@@ -6,11 +6,9 @@ import os
 import threading
 import configparser
 import ldbutil
-from global_var import *
+import global_var as globv
+from dbutil import initDBSettings
 
-cf = configparser.ConfigParser()
-cf.read(cur_path + 'replay.conf')
-PORT = cf.getint('server', 'port')
 app = Flask(__name__, static_folder='.', static_url_path='')
 update_flag = True
 
@@ -56,8 +54,12 @@ def am():
 
 
 if __name__ == '__main__':
+    globv.initConfigFile()
+    initDBSettings()
     dump.update()
     ldbutil.clear()
-    app.run(host='0.0.0.0', port=9999, debug=False)
+    globv.update_logger.info('='*20 + 'video record web server' + '='*20)
+    globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
+    app.run(host='0.0.0.0', port=globv.PORT, debug=False)
     dump.update_flag = False
     print('called here')

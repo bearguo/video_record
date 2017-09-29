@@ -4,21 +4,27 @@ import os
 from datetime import datetime, timedelta
 from global_var import *
 
-try:
-    HOST = cf.get('db', 'host')
-    PORT = cf.getint('db', 'port')
-    USER = cf.get('db', 'user')
-    PASSWORD = cf.get('db', 'password')
-except Exception as e:
-    logging.exception(e)
-    exit(-1)
+
+global HOST, PORT, USER, PASSWORD
+
+def initDBSettings():
+    global HOST, PORT, USER, PASSWORD
+    try:
+        HOST = cf.get('db', 'host')
+        PORT = cf.getint('db', 'port')
+        USER = cf.get('db', 'user')
+        PASSWORD = cf.get('db', 'password')
+    except Exception as e:
+        logging.exception(e)
+        exit(-1)
 
 
 class Connect():
     def __init__(self):
-        pass
+        initDBSettings()
 
     def __enter__(self):
+        global HOST, PORT, USER, PASSWORD
         self.connect = pymysql.connect(host=HOST,
                                        port=PORT,
                                        user=USER,
@@ -65,6 +71,7 @@ def get_live_url(channel_id):
     return get_channel_info(channel_id)['rtmp_url']
 
 
+@try_and_log
 def get_udp_port(channel_id):
     address = str(get_channel_info(channel_id)['client_ip'])
     port = None
@@ -77,7 +84,7 @@ def get_udp_port(channel_id):
     finally:
         return port
 
-
+@try_and_log
 def is_start(channel_id):
     active = get_channel_info(channel_id)['start']
     if active == 1:
@@ -145,7 +152,6 @@ def update_url(channel_id, url, event_id):
                             WHERE event_id = \'%s\'" % (url, event_id)
             cursor.execute(sql)
             conn.commit()
-            # print('update url ' + url)
 
 
 def delete_expire_program(channel_id, expire=8):

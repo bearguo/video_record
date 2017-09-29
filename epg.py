@@ -4,17 +4,12 @@ import urllib.request as ur
 import xml.etree.ElementTree as et
 import dbutil
 from global_var import *
-
-try:
-    EPG_URL = cf.get('dump', 'epg_url')
-except Exception as e:
-    logging.exception(e)
-    exit(-1)
-
+import global_var as globv
 
 @try_and_log
 def update(channel_id):
-    tree = et.parse(ur.urlopen(EPG_URL + channel_id))
+    global EPG_URL
+    tree = et.parse(ur.urlopen(globv.EPG_URL + channel_id))
     if tree is None:
         raise ValueError('epg tree is not available')
 

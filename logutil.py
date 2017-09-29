@@ -25,7 +25,7 @@ def getLogger(filename, name=None):
     log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s(line %(lineno)d) - %(levelname)s - %(message)s'))
     logger.setLevel(LEVEL)
     logger.addHandler(log_file_handler)
-    logger.debug('Log file created.')
+    logger.debug('Log file created. File name: %s Logger name: %s'%(filename, name))
     return logger
 
 
