@@ -8,8 +8,12 @@ import configparser
 import ldbutil
 import global_var as globv
 from dbutil import initDBSettings
+# from werkzeug.contrib.fixers import ProxyFix
+from pathlib import Path
+
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+# app.wsgi_app = ProxyFix(app.wsgi_app)
 update_flag = True
 
 
@@ -32,7 +36,7 @@ def echo(thing):
 
 
 @app.route('/status/<id>')
-@allow_cross_domain
+# @allow_cross_domain
 def status(id):
     # res = ldbutil.get_err(id)
     res = ""
@@ -53,6 +57,19 @@ def am():
     return ''
 
 
+def init_app():
+    globv.initConfigFile()
+    initDBSettings()
+    dump.update()
+    ldbutil.clear()
+    globv.update_logger.info('='*20 + 'video record web server' + '='*20)
+    globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
+
+
+def after_app():
+    dump.update_flag = False
+    print('called here')
+
 if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
@@ -60,6 +77,8 @@ if __name__ == '__main__':
     ldbutil.clear()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
+    with (Path(globv.cur_path)/'tsserver.pid').open('w') as f:
+        f.write(str(os.getpid()))
     app.run(host='0.0.0.0', port=globv.PORT, debug=False)
     dump.update_flag = False
     print('called here')

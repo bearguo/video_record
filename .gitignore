@@ -4,3 +4,5 @@ db.json
 env/
 build/
 *.spec
+*.log
+*.pid

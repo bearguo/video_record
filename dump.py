@@ -29,6 +29,7 @@ dump = libtest.dump
 
 def update():
     t = threading.Timer(globv.UPDATE_FREQUENCY * 60, update_schedule)
+    t.setDaemon(True)
     t.start()
 
 
@@ -140,6 +141,7 @@ def start_channel(channel_id):
     error_map[channel_id] = "success"
     ldbutil.update_err(channel_id, 'success')
     process = multiprocessing.Process(name=channel_id, target=Dump2, args=(channel_id,))
+    process.daemon = True
     process.start()
     channel_map[channel_id] = process
     epg.update(channel_id)
