@@ -2,8 +2,14 @@ import configparser
 import logging
 import os
 import logutil
+import sys
 
-cur_path = os.path.dirname(os.path.realpath(__file__)) + '/'
+
+if getattr(sys, 'frozen', False):
+    cur_path = os.path.dirname(sys.executable) + '/'
+elif __file__:
+    cur_path = os.path.dirname(os.path.realpath(__file__)) + '/'
+#cur_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 cf = configparser.ConfigParser()
 global UPDATE_FREQUENCY, IP, EXPIRE, update_logger, html_path, PORT, EPG_URL
 
