@@ -36,7 +36,7 @@ def echo(thing):
 
 
 @app.route('/status/<id>')
-# @allow_cross_domain
+@allow_cross_domain
 def status(id):
     # res = ldbutil.get_err(id)
     res = ""
