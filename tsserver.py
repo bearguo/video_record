@@ -10,6 +10,7 @@ import global_var as globv
 from dbutil import initDBSettings
 # from werkzeug.contrib.fixers import ProxyFix
 from pathlib import Path
+from global_var import try_and_log
 
 
 app = Flask(__name__, static_folder='.', static_url_path='')
@@ -52,7 +53,7 @@ def am():
     op, c = request.values.get('op'), request.values.get('c')
     if op == 'start':
         start_channel(c)
-    elif op == 'kill':
+    elif op == 'stop':
         kill(c)
     return ''
 

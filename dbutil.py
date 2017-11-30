@@ -2,8 +2,8 @@ import pymysql.cursors
 import configparser
 import os
 from datetime import datetime, timedelta
+import global_var as globv
 from global_var import *
-
 
 global HOST, PORT, USER, PASSWORD
 
@@ -80,7 +80,7 @@ def get_udp_port(channel_id):
             port_str = address[address.rfind(':') + 1:]
             port = int(port_str)  # make sure port_str is a number
     except Exception as e:
-        update_logger.exception(e)
+        globv.update_logger.exception(e)
     finally:
         return port
 
@@ -116,13 +116,14 @@ def get_available_program(channel_id, START_TIME):
                              ORDER BY end_time" % channel_id
             cursor.execute(sql)
             result = cursor.fetchall()
-
     now = datetime.now()
     # for program in result:
     #     et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
     #     if START_TIME < et < now:
     #         ret.append(program)
-    ret = [program for program in result if START_TIME < datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S') < now]
+    ret = [program for program in result if START_TIME < datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S') <= now]
+    globv.update_logger.debug('ret = %s'%str(ret))
+
     return ret
 
 

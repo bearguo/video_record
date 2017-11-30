@@ -43,6 +43,7 @@ def updateEpg():
 def updateM3u8File():
     for channel_id in channel_map:
         if channel_map[channel_id].is_alive():
+            globv.update_logger.debug('update m3u8 file %s'%channel_id)
             list = dbutil.get_available_program(channel_id, START_TIME)
             globv.update_logger.debug(channel_id + '  available list' + str(list))
             for program in list:
@@ -82,11 +83,9 @@ def update_schedule():
     globv.update_logger.debug('channel_map --' + str(channel_map))
     try:
         if update_flag:
-            updateEpg()
-
             # create m3u8 file
             updateM3u8File()
-
+            updateEpg()
             # delete
             deleteExpireProgram(globv.EXPIRE)
     finally:
@@ -125,7 +124,7 @@ def create_m3u8_file(channel_id, st, et, event_id):
         filename = m3u8maker.create_m3u8_file(event_id, ts_path, file_list)
         globv.update_logger.debug('create m3u8 file: ' + filename)
         if filename is not None:
-            url = 'http://%s/%s/%s/%s' % globv.IP % channel_id % folder % filename
+            url = 'http://%s/%s/%s/%s' %(globv.IP, channel_id, folder, filename)
             dbutil.update_url(channel_id, url, event_id)
 
 
@@ -143,6 +142,7 @@ def start_channel(channel_id):
     process = multiprocessing.Process(name=channel_id, target=Dump2, args=(channel_id,))
     process.daemon = True
     process.start()
+    globv.update_logger.info('start %s process done' % channel_id)
     channel_map[channel_id] = process
     epg.update(channel_id)
 
@@ -197,6 +197,7 @@ def Dump2(channel_id):
         dbutil.set_start(channel_id, False)
 
 
+@try_and_log
 def kill(channel_id):
     global channel_map
     try:
