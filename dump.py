@@ -131,8 +131,8 @@ def create_m3u8_file(channel_id, st, et, event_id):
 @try_and_log
 def start_channel(channel_id):
     global channel_map
-    if dbutil.is_start(channel_id):
-        return
+    # if dbutil.is_start(channel_id):
+    #     return
     if channel_id in channel_map:
         if channel_map[channel_id].is_alive():
             return
@@ -145,6 +145,13 @@ def start_channel(channel_id):
     globv.update_logger.info('start %s process done' % channel_id)
     channel_map[channel_id] = process
     epg.update(channel_id)
+
+
+def restore_channels():
+    for channel_id in dbutil.get_started_channels():
+        globv.update_logger.info('Restore recording channel %s start'%channel_id)
+        start_channel(channel_id)
+        time.sleep(.2)
 
 
 @try_and_log

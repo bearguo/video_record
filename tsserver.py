@@ -1,6 +1,6 @@
 from flask import Flask, request, make_response
 import dump
-from dump import start_channel, kill, error_map
+from dump import start_channel, kill, error_map, restore_channels
 from functools import wraps
 import os
 import threading
@@ -71,6 +71,7 @@ def after_app():
     dump.update_flag = False
     print('called here')
 
+
 if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
@@ -80,6 +81,9 @@ if __name__ == '__main__':
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
     with (Path(globv.cur_path)/'tsserver.pid').open('w') as f:
         f.write(str(os.getpid()))
+    t = threading.Timer(10, restore_channels)
+    t.setDaemon(True)
+    t.start()
     app.run(host='0.0.0.0', port=globv.PORT, debug=False)
     dump.update_flag = False
     print('called here')

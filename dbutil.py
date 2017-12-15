@@ -107,6 +107,15 @@ def set_start(channel_id, active):
             conn.commit()
 
 
+def get_started_channels():
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = 'SELECT channel_id from channel where start = 1'
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return [item['channel_id'] for item in result]
+
+
 def get_available_program(channel_id, START_TIME):
     with Connect() as conn:
         with conn.cursor() as cursor:
@@ -165,6 +174,9 @@ def delete_expire_program(channel_id, expire=8):
 
 
 if __name__ == '__main__':
+    initConfigFile()
+    initDBSettings()
+    print(get_started_channels())
     # print(get_live_url('CCTV2'))
     #
     # print(is_start('CCTV2'))
@@ -178,5 +190,5 @@ if __name__ == '__main__':
     # print(get_available_program('CCTV2',datetime.now()-timedelta(days=2)))
 
     # print("DELETE FROM program WHERE channel_id = '%s' AND end_time < DATE_SUB(NOW(), INTERVAL %d DAY)" % ('CCTV1',8))
-    get_channel_info('CCTV1')
+    #get_channel_info('CCTV1')
     # print(get_udp_port('CCTV2'))
