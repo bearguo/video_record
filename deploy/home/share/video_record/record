@@ -1,0 +1,35 @@
+#!/bin/bash
+APP_PATH=/home/share/video_record/
+NAME="tsserver"
+PIDFILE=$APP_PATH"tsserver.pid"
+SCRIPT=$APP_PATH"tsserver"
+
+. /lib/lsb/init-functions
+
+do_start()
+{
+  $SCRIPT 1>&2 >/dev/null &
+}
+
+do_stop()
+{
+  pkill $NAME
+}
+case "$1" in
+  start )
+    do_start
+    ;;
+  stop )
+    do_stop
+    ;;
+  restart )
+    do_stop
+    echo "stop done. sleep for 1 second"
+    sleep 1
+    do_start
+    echo "start ok"
+    ;;
+  status)
+    status_of_proc -p "$PIDFILE" "$SCRIPT" "$NAME" && exit 0 || exit $?
+    ;;
+esac
