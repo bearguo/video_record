@@ -26,7 +26,19 @@ def initConfigFile():
         UPDATE_FREQUENCY = cf.getint('dump', 'update_frequence')
         IP = cf.get('record_server', 'ip')
         EXPIRE = cf.getint('dump', 'expire') + 1
-        update_logger = logutil.getLogger(os.path.join(html_path, 'dump.log'), name='dump')
+        LOG_LEVEL = cf.get('log', 'level')
+        if LOG_LEVEL == 'DEBUG':
+            LOG_LEVEL = logging.DEBUG
+        elif LOG_LEVEL == 'INFO':
+            LOG_LEVEL = logging.INFO
+        elif LOG_LEVEL == 'WARNING':
+            LOG_LEVEL = logging.WARNING
+        elif LOG_LEVEL == 'ERROR':
+            LOG_LEVEL = logging.ERROR
+        else:
+            LOG_LEVEL = logging.DEBUG
+        print('log level is', logging.getLevelName(LOG_LEVEL))
+        update_logger = logutil.getLogger(os.path.join(html_path, 'dump.log'), name='dump', level=LOG_LEVEL)
         PORT = cf.getint('record_server', 'port')
         EPG_URL = cf.get('dump', 'epg_url')
     except Exception as e:

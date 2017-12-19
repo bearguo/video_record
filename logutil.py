@@ -6,8 +6,8 @@ from time import sleep
 LEVEL = logging.DEBUG
 
 
-def getLogger(filename, name=None):
-    logging.basicConfig(level=LEVEL,
+def getLogger(filename, name=None, level=LEVEL):
+    logging.basicConfig(level=level,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(name)
 
@@ -23,7 +23,7 @@ def getLogger(filename, name=None):
     log_file_handler = RotatingFileHandler(filename=filename, maxBytes=50*1024*1024, backupCount=3)
 
     log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(filename)s(line %(lineno)d) - %(levelname)s - %(message)s'))
-    logger.setLevel(LEVEL)
+    logger.setLevel(level)
     logger.addHandler(log_file_handler)
     logger.debug('Log file created. File name: %s Logger name: %s'%(filename, name))
     return logger
