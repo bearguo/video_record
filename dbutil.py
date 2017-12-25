@@ -120,7 +120,7 @@ def get_available_program(channel_id, START_TIME):
     with Connect() as conn:
         with conn.cursor() as cursor:
             sql = "SELECT DATE_FORMAT(start_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS st, \
-                             DATE_FORMAT(end_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS et,title,event_id \
+                             DATE_FORMAT(end_time,'%%Y-%%m-%%d %%H:%%i:%%S') AS et,title,event_id,channel_id \
                              FROM program WHERE channel_id = \'%s\' AND finished = 0 \
                              ORDER BY end_time" % channel_id
             cursor.execute(sql)
@@ -173,10 +173,22 @@ def delete_expire_program(channel_id, expire=8):
             conn.commit()
 
 
+def delete_conflit_program(program_list):
+    if not program_list:return
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM program WHERE channel_id=\'%s\' and start_time=\'%s\' and finished=1"%(program_list[0]['channel_id'], program_list[0]['st'])
+            cursor.execute(sql)
+            conn.commit()
+
+
 if __name__ == '__main__':
     initConfigFile()
     initDBSettings()
-    print(get_started_channels())
+    program = get_available_program('CCTV1', datetime(2017,12,24,hour=15,minute=00,second=00))
+    print(program)
+    delete_conflit_program(program)
+    # print(get_started_channels())
     # print(get_live_url('CCTV2'))
     #
     # print(is_start('CCTV2'))

@@ -44,9 +44,10 @@ def updateM3u8File():
     for channel_id in channel_map:
         if channel_map[channel_id].is_alive():
             globv.update_logger.debug('update m3u8 file %s'%channel_id)
-            list = dbutil.get_available_program(channel_id, START_TIME)
-            globv.update_logger.debug(channel_id + '  available list' + str(list))
-            for program in list:
+            program_list = dbutil.get_available_program(channel_id, START_TIME)
+            dbutil.delete_conflit_program(program_list)
+            globv.update_logger.debug(channel_id + '  available list' + str(program_list))
+            for program in program_list:
                 st = datetime.strptime(program['st'], '%Y-%m-%d %H:%M:%S')
                 et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
                 event_id = program['event_id']
