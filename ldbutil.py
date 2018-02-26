@@ -14,8 +14,7 @@ def init():
     # db.insert({'int': 1, 'char': 'a'})
     # print(db.all())
     db.purge()
-    # print(db.all)
-    pass
+    db.close()
 
 
 def update_err(channel_id, status):
@@ -28,9 +27,7 @@ def update_err(channel_id, status):
         db.insert({'id': channel_id, 'status': status})
     else:
         db.update({'status': status}, Channel.id == channel_id)
-
-    # print(db.all())
-    pass
+    db.close()
 
 
 def get_err(channel_id):
@@ -54,13 +51,14 @@ def get_channels():
 
     for i in all:
         ret.append(i['id'])
-
+    db.close()
     return ret
 
 
 def clear():
     db = TinyDB(file)
     db.purge()
+    db.close()
 
 
 if __name__ == "__main__":
