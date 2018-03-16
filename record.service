@@ -1,0 +1,13 @@
+[Unit]
+Description=record daemon
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/share/video_record
+ExecStart=/home/share/video_record/tsserver
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
