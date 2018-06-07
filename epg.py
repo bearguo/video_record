@@ -17,6 +17,8 @@ def update(channel_id):
 
     root = tree.getroot()
     now = datetime.now()
+    latest = dbutil.get_finished_latest_date(channel_id)
+    base_time = latest if latest else now
     for schedule in root.iter('schedule'):
         for event in schedule.findall('event'):
             event_id = event.get('id')
@@ -35,7 +37,7 @@ def update(channel_id):
                 start_dt = datetime.combine(date, start_time)
                 end_dt = datetime.combine(date, end_time)
 
-            if end_dt > now:
+            if end_dt > base_time:
                 dbutil.insert_program(event_id, channel_id, start_dt, end_dt, title)
 
 

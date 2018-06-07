@@ -15,8 +15,9 @@ def getLogger(filename, name=None, level=LEVEL):
     if not os.path.exists(filename):
         file_path, file_name = os.path.split(filename)
         os.makedirs(file_path,exist_ok=True)
-        os.mknod(filename,mode=0o777)
-
+        # os.mknod(filename,mode=0o777)
+        with open(filename, 'a+') as fp:
+            pass
     # interval: how many numbers of 'when' will keep the log file
     # backupCount: how many old log files will keep.
     # log_file_handler = TimedRotatingFileHandler(filename=filename, when="D", interval=30, backupCount=3)

@@ -136,6 +136,23 @@ def get_available_program(channel_id, START_TIME):
     return ret
 
 
+def get_finished_latest_date(channel_id):
+    """
+    选择频道channel_id中已经录制好的节目中时间最大的时间
+
+    :param channel_id: 频道ID
+    :return datetime.datetime类型的时间
+    """
+    with Connect() as conn:
+        with conn.cursor() as cursor:
+            sql = "SELECT end_time FROM program WHERE channel_id = \'%s\' AND finished = 1 \
+                                ORDER BY end_time DESC LIMIT 0, 2" % channel_id
+            cursor.execute(sql)
+            result = cursor.fetchall()
+    if result:
+        return result[0]['end_time']
+    return None
+
 def delete_program(channel_id):
     with Connect() as conn:
         with conn.cursor() as cursor:
@@ -187,7 +204,9 @@ if __name__ == '__main__':
     initDBSettings()
     program = get_available_program('CCTV1', datetime(2017,12,24,hour=15,minute=00,second=00))
     print(program)
-    delete_conflit_program(program)
+    # delete_conflit_program(program)
+    ret = get_finished_latest_date('CCTV1')
+    print(ret)
     # print(get_started_channels())
     # print(get_live_url('CCTV2'))
     #
