@@ -21,7 +21,7 @@ manager = Manager()
 error_map = manager.dict()
 ldbutil.init()
 update_flag = True
-START_TIME = datetime.now() - timedelta(hours=1)
+START_TIME = datetime.now() - timedelta(days=1)
 libtest = cdll.LoadLibrary(globv.cur_path + 'libUDP2HLS.so.1.0.0')
 libtest.dump.argtype = [c_int, c_char_p, c_int]
 dump = libtest.dump
