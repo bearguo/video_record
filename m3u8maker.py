@@ -12,8 +12,8 @@ def create_random_name():
     return random_string
 
 
-def create_m3u8_file(event_id, ts_path, file_list):
-    filename = create_random_name() + str(event_id) + '.m3u8'
+def create_m3u8_file(channel_id,st, ts_path, file_list):
+    filename = str(channel_id) + str(st) + '.m3u8'
     max = -1
     for file in file_list:
         inf = int(float(dateutil.get_inf_from_filename(file))) + 1

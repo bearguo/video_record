@@ -52,7 +52,6 @@ def updateM3u8File():
                 et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
                 event_id = program['event_id']
                 create_m3u8_file(channel_id, st, et, event_id)
-                globv.update_logger.debug('create m3u8 file ' + str(id))
         else:
             globv.update_logger.debug('restart channel:' + channel_id)
             # del channel_map[channel_id]
@@ -122,7 +121,7 @@ def create_m3u8_file(channel_id, st, et, event_id):
     file_list.sort()
 
     if len(file_list) != 0:
-        filename = m3u8maker.create_m3u8_file(event_id, ts_path, file_list)
+        filename = m3u8maker.create_m3u8_file(channel_id, st, ts_path, file_list)
         globv.update_logger.debug('create m3u8 file: ' + filename)
         if filename is not None:
             url = 'http://%s/%s/%s/%s' %(globv.IP, channel_id, folder, filename)
