@@ -4,13 +4,13 @@ from string import ascii_letters
 import dateutil
 import random
 
-
+'''
 def create_random_name():
     random_code_list = list(ascii_letters) + list('0123456789')
     slice = random.sample(random_code_list, 4)  # select 4 elements from code_list.
     random_string = ''.join(slice)  # list to string
     return random_string
-
+'''
 
 def create_m3u8_file(channel_id,st, ts_path, file_list):
     filename = str(channel_id) + str(st) + '.m3u8'
@@ -34,4 +34,5 @@ def create_m3u8_file(channel_id,st, ts_path, file_list):
 
 if __name__ == '__main__':
     # create_m3u8_file('/var/www/html/CCTV2/test.m3u8',None)
-    print(create_random_name())
+#    print(create_random_name())
+    pass
