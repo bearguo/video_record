@@ -7,3 +7,5 @@ build/
 *.log
 *.pid
 .vscode
+dist/
+

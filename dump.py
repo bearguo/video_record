@@ -131,11 +131,9 @@ def create_m3u8_file(channel_id, st, et, event_id):
 @try_and_log
 def start_channel(channel_id):
     global channel_map
-    # if dbutil.is_start(channel_id):
-    #     return
     if channel_id in channel_map:
         if channel_map[channel_id].is_alive():
-            return
+            return          
     dbutil.set_start(channel_id, True)
     error_map[channel_id] = "success"
     ldbutil.update_err(channel_id, 'success')
