@@ -1,4 +1,4 @@
-__pycache__/*
+__pycache__/
 .idea/*
 db.json
 env/
@@ -8,4 +8,6 @@ build/
 *.pid
 .vscode
 dist/
-
+deploy/
+resources/
+test/

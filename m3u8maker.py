@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
-from string import ascii_letters
-import dateutil
 import random
+from string import ascii_letters
+
+import dateutil
+
 
 '''
 def create_random_name():

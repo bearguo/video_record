@@ -1,11 +1,13 @@
-from gunicorn.app.base import Application, Config
+import multiprocessing
+
 import gunicorn
 from gunicorn import glogging
-from tsserver import app
-import multiprocessing
+from gunicorn.app.base import Application, Config
 from gunicorn.workers import ggevent
-from tsserver import init_app, after_app, app
+
 import global_var as globv
+from tsserver import after_app, app, init_app
+
 
 class GUnicornFlaskApplication(Application):
     def __init__(self, app):

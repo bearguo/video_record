@@ -1,9 +1,9 @@
 import configparser
 import logging
 import os
-import logutil
 import sys
 
+import logutil
 
 if getattr(sys, 'frozen', False):
     cur_path = os.path.dirname(sys.executable) + '/'

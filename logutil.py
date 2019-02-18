@@ -1,6 +1,6 @@
 import logging
 import os
-from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from time import sleep
 
 LEVEL = logging.DEBUG

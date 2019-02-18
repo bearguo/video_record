@@ -1,5 +1,6 @@
-from tinydb import TinyDB, Query
 import configparser
+
+from tinydb import Query, TinyDB
 
 from global_var import *
 

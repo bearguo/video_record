@@ -1,10 +1,12 @@
 import configparser
-from datetime import datetime, timedelta
 import urllib.request as ur
 import xml.etree.ElementTree as et
+from datetime import datetime, timedelta
+
 import dbutil
-from global_var import *
 import global_var as globv
+from global_var import *
+
 
 @try_and_log
 def update(channel_id):
