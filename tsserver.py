@@ -76,15 +76,15 @@ def after_app():
 if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
-    dump.update()
-    ldbutil.clear()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
-    with (Path(globv.cur_path)/'tsserver.pid').open('w') as f:
-        f.write(str(os.getpid()))
-    t = threading.Timer(5*60, restore_channels)
-    t.setDaemon(True)
-    t.start()
+    restore_channels()
+    dump.update()
+    ldbutil.clear()
+    
+#    t = threading.Timer(5*60, restore_channels)
+#    t.setDaemon(True)
+#    t.start()
     app.run(host='0.0.0.0', port=globv.PORT, debug=False)
     dump.update_flag = False
     print('called here')

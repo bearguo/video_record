@@ -11,8 +11,12 @@ RUN pip install -r requirements.txt &&\
     rm -rf /var/cache && \
     rm /app/requirements.txt
 
-COPY . /app
+ENV TSRTMP_DB_HOST=tsrtmp_db 
+
+
 HEALTHCHECK --interval=60s --timeout=3s CMD curl -fs http://localhost:9999/echo/1 || exit 1
 
 EXPOSE 9999
+
 CMD ["python", "./tsserver.py"]
+COPY . /app

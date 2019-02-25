@@ -20,3 +20,4 @@ README*
 record
 record.service
 tsserver
+record_conf/replay.conf

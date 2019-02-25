@@ -9,16 +9,16 @@ if getattr(sys, 'frozen', False):
     cur_path = os.path.dirname(sys.executable) + '/'
 elif __file__:
     cur_path = os.path.dirname(os.path.realpath(__file__)) + '/'
-#cur_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 cf = configparser.ConfigParser()
 global UPDATE_FREQUENCY, IP, EXPIRE, update_logger, html_path, PORT, EPG_URL
 
 
 def initConfigFile():
     global UPDATE_FREQUENCY, IP, EXPIRE, update_logger, html_path, PORT, EPG_URL
+    config_folder_name = 'record_conf'
     config_file_name = 'replay.conf'
     try:
-        config_file = os.path.join(cur_path, config_file_name)
+        config_file = os.path.join(cur_path, config_folder_name,config_file_name)
         if not os.path.exists(config_file):
             raise ValueError('%s is not exists in current folder!'%config_file_name)
         cf.read(config_file)

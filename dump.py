@@ -190,12 +190,14 @@ def Dump2(channel_id):
         while True:
             error_map[channel_id] = "success"
             logger.debug('%s start record with dump()' % channel_id)
+            '''
             res = dump(port, channel_path.encode(), 60)
             if res != 0:
                 error_map[channel_id] = 'no stream'
                 ldbutil.update_err(channel_id,'no stream')
                 logger.debug(channel_id + ' stopped by dump()!')
                 globv.update_logger.error('channel %s stopped by dump()!'%channel_id)
+            '''
             time.sleep(60 * 5)
     except Exception as e:
         logger.exception(e)

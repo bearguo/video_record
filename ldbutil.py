@@ -5,7 +5,7 @@ from tinydb import Query, TinyDB
 from global_var import *
 
 cf = configparser.ConfigParser()
-cf.read(cur_path + 'replay.conf')
+cf.read(cur_path + 'record_conf/replay.conf')
 
 file = cur_path + cf.get('local_db', 'file')
 
