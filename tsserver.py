@@ -76,7 +76,7 @@ def after_app():
 if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
-    t = threading.Thread(target=app.run(),kwargs={'host':'0.0.0.0','port':globv.PORT,'debug':False})
+    t = threading.Thread(target=app.run,kwargs={'host':'0.0.0.0','port':globv.PORT,'debug':False})
     t.setDaemon(True)
     t.start()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)
