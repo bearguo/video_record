@@ -76,11 +76,14 @@ def after_app():
 if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
+    t = threading.Thread(target=app.run(),kwargs={'host':'0.0.0.0','port':globv.PORT,'debug':False})
+    t.setDaemon(True)
+    t.start()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
     restore_channels()
     dump.update_schedule()
-    app.run(host='0.0.0.0', port=globv.PORT, debug=False)
+#    app.run(host='0.0.0.0', port=globv.PORT, debug=False)
     ldbutil.clear()
     
 #    t = threading.Timer(5*60, restore_channels)
