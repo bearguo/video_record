@@ -3,7 +3,7 @@ import os
 import shutil
 import threading
 import time
-from ctypes import *
+#from ctypes import *
 from datetime import datetime, timedelta
 from multiprocessing import Manager
 
@@ -17,15 +17,15 @@ import logutil
 import m3u8maker
 from global_var import try_and_log
 
-channel_map = {}
+#channel_map = {}
 manager = Manager()
 error_map = manager.dict()
-ldbutil.init()
+#ldbutil.init()
 update_flag = True
 START_TIME = datetime.now() - timedelta(days=1)
-libtest = cdll.LoadLibrary(globv.cur_path + 'libUDP2HLS.so.1.0.0')
-libtest.dump.argtype = [c_int, c_char_p, c_int]
-dump = libtest.dump
+#libtest = cdll.LoadLibrary(globv.cur_path + 'libUDP2HLS.so.1.0.0')
+#libtest.dump.argtype = [c_int, c_char_p, c_int]
+#dump = libtest.dump
 
 
 def update():
@@ -34,35 +34,35 @@ def update():
     t.start()
 
 
-def updateEpg():
-    for channel_id in channel_map:
-        if channel_map[channel_id].is_alive():
-            epg.update(channel_id)
-            globv.update_logger.debug('update epg :' + channel_id)
+def updateEpg(live_channel):
+    for channel_id in live_channel:
+        epg.update(channel_id)
+        globv.update_logger.debug('update epg :' + channel_id)
 
 
-def updateM3u8File():
-    for channel_id in channel_map:
-        if channel_map[channel_id].is_alive():
-            globv.update_logger.debug('update m3u8 file %s'%channel_id)
-            program_list = dbutil.get_available_program(channel_id, START_TIME)
-            dbutil.delete_conflit_program(program_list)
-            globv.update_logger.debug(channel_id + '  available list' + str(program_list))
-            for program in program_list:
-                st = datetime.strptime(program['st'], '%Y-%m-%d %H:%M:%S')
-                et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
-                event_id = program['event_id']
-                create_m3u8_file(channel_id, st, et, event_id)
+def updateM3u8File(live_channel):
+    for channel_id in live_channel:
+        globv.update_logger.debug('update m3u8 file %s'%channel_id)
+        program_list = dbutil.get_available_program(channel_id, START_TIME)
+        dbutil.delete_conflit_program(program_list)
+        globv.update_logger.debug(channel_id + '  available list' + str(program_list))
+        for program in program_list:
+            st = datetime.strptime(program['st'], '%Y-%m-%d %H:%M:%S')
+            et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
+            event_id = program['event_id']
+            create_m3u8_file(channel_id, st, et, event_id)
+        '''
         else:
             globv.update_logger.debug('restart channel:' + channel_id)
             # del channel_map[channel_id]
             kill(channel_id)
             start_channel(channel_id)
+        '''
 
 
-def deleteExpireProgram(days):
+def deleteExpireProgram(days, live_channel):
     now = datetime.now()
-    for channel_id in channel_map:
+    for channel_id in live_channel:
         dbutil.delete_expire_program(channel_id, expire=days)
         channel_path = os.path.join(globv.html_path, channel_id)
         for dir_path, dir_names, file_names in os.walk(channel_path):
@@ -80,19 +80,18 @@ def deleteExpireProgram(days):
 
 def update_schedule():
     globv.update_logger.debug('update!')
+    live_channel = dbutil.get_started_channels()
     # print(channel_map)
-    globv.update_logger.debug('channel_map --' + str(channel_map))
+#    globv.update_logger.debug('channel_map --' + str(channel_map))
     try:
-        if update_flag:
-            # create m3u8 file
-            updateM3u8File()
-            updateEpg()
-            # delete
-            deleteExpireProgram(globv.EXPIRE)
+        updateM3u8File(live_channel)
+        updateEpg(live_channel)
+        deleteExpireProgram(globv.EXPIRE,live_channel)
+    except Exception as e:
+        globv.update_logger.error(e)
     finally:
-        if update_flag:
-            t = threading.Timer(globv.UPDATE_FREQUENCY * 60, update_schedule)
-            t.start()
+        t = threading.Timer(globv.UPDATE_FREQUENCY * 60, update_schedule)
+        t.start()
 
 
 def genFileList(folder, ts_path, st, et):
@@ -131,6 +130,7 @@ def create_m3u8_file(channel_id, st, et, event_id):
 
 @try_and_log
 def start_channel(channel_id):
+    '''
     global channel_map
     if channel_id in channel_map:
         if channel_map[channel_id].is_alive():
@@ -138,11 +138,12 @@ def start_channel(channel_id):
     dbutil.set_start(channel_id, True)
     error_map[channel_id] = "success"
     ldbutil.update_err(channel_id, 'success')
+    '''
     process = multiprocessing.Process(name=channel_id, target=Dump2, args=(channel_id,))
     process.daemon = True
     process.start()
     globv.update_logger.info('start %s process done' % channel_id)
-    channel_map[channel_id] = process
+#    channel_map[channel_id] = process
     epg.update(channel_id)
 
 
@@ -171,13 +172,13 @@ def get_udp_ip(url):
 
 
 def Dump2(channel_id):
-    global error_map
-    globv.update_logger.info('start record %s' % channel_id)
+#    global error_map
+#    globv.update_logger.info('start record %s' % channel_id)
     port = dbutil.get_udp_port(channel_id)
     if port is None:
-        error_map[channel_id] = 'wrong stream'
+#        error_map[channel_id] = 'wrong stream'
         globv.update_logger.error('channel %s \'s address don\'t have a port number!' % channel_id)
-        dbutil.set_start(channel_id, False)
+#        dbutil.set_start(channel_id, False)
         return
 
     channel_path = os.path.join(globv.html_path, channel_id)
@@ -185,28 +186,30 @@ def Dump2(channel_id):
         globv.update_logger.info('create path: %s' % channel_path)
         os.makedirs(channel_path)
     logger = logutil.getLogger(os.path.join(channel_path, channel_id + '.log'), name=channel_id)
-
+    logger.debug('%s start record with dump()' % channel_id)
+    '''
     try:
         while True:
             error_map[channel_id] = "success"
-            logger.debug('%s start record with dump()' % channel_id)
-            '''
+            
             res = dump(port, channel_path.encode(), 60)
             if res != 0:
                 error_map[channel_id] = 'no stream'
                 ldbutil.update_err(channel_id,'no stream')
                 logger.debug(channel_id + ' stopped by dump()!')
                 globv.update_logger.error('channel %s stopped by dump()!'%channel_id)
-            '''
+            
             time.sleep(60 * 5)
     except Exception as e:
         logger.exception(e)
     finally:
         dbutil.set_start(channel_id, False)
+    '''
 
 
 @try_and_log
 def kill(channel_id):
+    '''
     global channel_map
     try:
         if channel_id in channel_map:
@@ -219,10 +222,13 @@ def kill(channel_id):
         globv.update_logger.exception(e)
     finally:
         error_map[channel_id] = 'killed'
-        dbutil.set_start(channel_id, False)
+    '''
+    dbutil.set_start(channel_id, False)
+    '''
         if channel_id in channel_map:
             channel_map.pop(channel_id)
-        globv.update_logger.info('kill ' + channel_id + ' done.')
+    '''
+    globv.update_logger.info('kill ' + channel_id + ' done.')
 
 
 def delete_folder(folder):

@@ -10,7 +10,7 @@ from flask import Flask, make_response, request
 import dump
 import global_var as globv
 import ldbutil
-from dbutil import initDBSettings
+from dbutil import get_started_channels, initDBSettings
 from dump import error_map, kill, restore_channels, start_channel
 from global_var import try_and_log
 
@@ -40,10 +40,10 @@ def echo(thing):
 @app.route('/status/<id>')
 @allow_cross_domain
 def status(id):
-    # res = ldbutil.get_err(id)
+    live_channel = get_started_channels()
     res = ""
-    if id in error_map:
-        res = error_map[id]
+    if id in live_channel:
+        res = 'success'
     if res == None:
         res = ""
     return res
@@ -83,11 +83,6 @@ if __name__ == '__main__':
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
     restore_channels()
     dump.update_schedule()
-#    app.run(host='0.0.0.0', port=globv.PORT, debug=False)
-    ldbutil.clear()
-    
-#    t = threading.Timer(5*60, restore_channels)
-#    t.setDaemon(True)
-#    t.start()
-    dump.update_flag = False
-    print('called here')
+
+#    ldbutil.clear()
+#    dump.update_flag = False
