@@ -9,7 +9,6 @@ from flask import Flask, make_response, request
 
 import dump
 import global_var as globv
-import ldbutil
 from dbutil import get_started_channels, initDBSettings
 from dump import error_map, kill, restore_channels, start_channel
 from global_var import try_and_log
@@ -63,7 +62,6 @@ def init_app():
     globv.initConfigFile()
     initDBSettings()
     dump.update()
-    ldbutil.clear()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
 

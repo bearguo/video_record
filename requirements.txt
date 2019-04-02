@@ -1,8 +1,7 @@
 Flask==0.12.2
-gunicorn==19.7.1
 PyMySQL==0.7.11
 python-dateutil==2.7.5
-tinydb==3.5.0
+
 
 
 

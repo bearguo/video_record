@@ -12,7 +12,7 @@ import dateutil
 import dbutil
 import epg
 import global_var as globv
-import ldbutil
+#import ldbutil
 import logutil
 import m3u8maker
 from global_var import try_and_log
@@ -192,8 +192,8 @@ def Dump2(channel_id):
             dump(port, channel_path.encode(), 60)
     except Exception as e:
         logger.exception(e)
-#        t = threading.Timer(5, Dump2, args=(channel_id,))
-#        t.start()
+        t = threading.Timer(5, Dump2, args=(channel_id,))
+        t.start()
 
 
 @try_and_log
