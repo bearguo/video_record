@@ -3,7 +3,7 @@ import os
 import shutil
 import threading
 import time
-#from ctypes import *
+from ctypes import cdll, c_int, c_char_p
 from datetime import datetime, timedelta
 from multiprocessing import Manager
 
@@ -23,9 +23,9 @@ error_map = manager.dict()
 #ldbutil.init()
 update_flag = True
 START_TIME = datetime.now() - timedelta(days=1)
-#libtest = cdll.LoadLibrary(globv.cur_path + 'libUDP2HLS.so.1.0.0')
-#libtest.dump.argtype = [c_int, c_char_p, c_int]
-#dump = libtest.dump
+libtest = cdll.LoadLibrary(globv.cur_path + 'libUDP2HLS.so.1.0.0')
+libtest.dump.argtype = [c_int, c_char_p, c_int]
+dump = libtest.dump
 
 
 def update():
@@ -187,24 +187,13 @@ def Dump2(channel_id):
         os.makedirs(channel_path)
     logger = logutil.getLogger(os.path.join(channel_path, channel_id + '.log'), name=channel_id)
     logger.debug('%s start record with dump()' % channel_id)
-    '''
     try:
         while True:
-            error_map[channel_id] = "success"
-            
-            res = dump(port, channel_path.encode(), 60)
-            if res != 0:
-                error_map[channel_id] = 'no stream'
-                ldbutil.update_err(channel_id,'no stream')
-                logger.debug(channel_id + ' stopped by dump()!')
-                globv.update_logger.error('channel %s stopped by dump()!'%channel_id)
-            
-            time.sleep(60 * 5)
+            dump(port, channel_path.encode(), 60)
     except Exception as e:
         logger.exception(e)
-    finally:
-        dbutil.set_start(channel_id, False)
-    '''
+#        t = threading.Timer(5, Dump2, args=(channel_id,))
+#        t.start()
 
 
 @try_and_log
