@@ -190,6 +190,7 @@ def Dump2(channel_id):
     try:
         while True:
             dump(port, channel_path.encode(), 60)
+            time.sleep(60 * 5)
     except Exception as e:
         logger.exception(e)
         t = threading.Timer(5, Dump2, args=(channel_id,))
