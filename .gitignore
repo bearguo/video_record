@@ -6,7 +6,7 @@ build/
 *.spec
 *.log
 *.pid
-.vscode
+.vscode/
 dist/
 deploy/
 resources/
