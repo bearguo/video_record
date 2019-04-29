@@ -10,8 +10,8 @@ global HOST, PORT, USER, PASSWORD
 def initDBSettings():
     global HOST, PORT, USER, PASSWORD
     try:
-        HOST = os.getenv('TSRTMP_DB_HOST','')
-#        HOST = cf.get('db', 'host')
+#        HOST = os.getenv('TSRTMP_DB_HOST','')
+        HOST = cf.get('db', 'host')
         PORT = cf.getint('db', 'port')
         USER = cf.get('db', 'user')
         PASSWORD = cf.get('db', 'password')

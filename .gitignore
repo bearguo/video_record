@@ -11,3 +11,4 @@ dist/
 deploy/
 resources/
 test/
+.DS_Store
