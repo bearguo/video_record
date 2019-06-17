@@ -7,3 +7,4 @@ build/
 *.log
 *.pid
 .vscode
+.DS_Store
