@@ -4,13 +4,13 @@ import os
 from datetime import datetime, timedelta
 import global_var as globv
 from global_var import *
+from retry import retry
 
 global HOST, PORT, USER, PASSWORD
 
 def initDBSettings():
     global HOST, PORT, USER, PASSWORD
     try:
-#        HOST = os.getenv('TSRTMP_DB_HOST','')
         HOST = cf.get('db', 'host')
         PORT = cf.getint('db', 'port')
         USER = cf.get('db', 'user')
@@ -24,6 +24,7 @@ class Connect():
     def __init__(self):
         initDBSettings()
 
+    @retry(tries=-1, delay=30)
     def __enter__(self):
         global HOST, PORT, USER, PASSWORD
         self.connect = pymysql.connect(host=HOST,
