@@ -12,3 +12,4 @@ deploy/
 resources/
 test/
 .DS_Store
+requirements.txt.*
