@@ -9,7 +9,7 @@ from flask import Flask, make_response, request
 import dump
 import global_var as globv
 from dbutil import get_started_channels, initDBSettings
-from dump import error_map, kill, restore_channels, start_channel
+from dump import  kill, restore_channels, start_channel
 from global_var import try_and_log
 
 app = Flask(__name__, static_folder='.', static_url_path='')
