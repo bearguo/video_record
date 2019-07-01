@@ -4,7 +4,7 @@ WORKDIR /app
 COPY requirements.txt /app
 
 RUN pip install -r requirements.txt &&\
-    apk add --no-cache curl &&\
+    apk add --no-cache curl tzdata &&\
     mkdir -p /var/www/html &&\
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \ 
     echo "Asia/Shanghai" > /etc/timezone && \
