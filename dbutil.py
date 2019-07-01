@@ -11,8 +11,8 @@ global HOST, PORT, USER, PASSWORD
 def initDBSettings():
     global HOST, PORT, USER, PASSWORD
     try:
-        HOST = cf.get('db', 'host')
-        PORT = cf.getint('db', 'port')
+        HOST = os.getenv('TSRTMP_DB_HOST', 'localhost')
+        PORT = int(os.getenv('TSRTMP_DB_PORT', 3306))
         USER = cf.get('db', 'user')
         PASSWORD = cf.get('db', 'password')
     except Exception as e:
