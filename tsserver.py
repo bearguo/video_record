@@ -2,7 +2,6 @@ import configparser
 import os
 import threading
 from functools import wraps
-# from werkzeug.contrib.fixers import ProxyFix
 from pathlib import Path
 
 from flask import Flask, make_response, request
@@ -14,7 +13,6 @@ from dump import error_map, kill, restore_channels, start_channel
 from global_var import try_and_log
 
 app = Flask(__name__, static_folder='.', static_url_path='')
-# app.wsgi_app = ProxyFix(app.wsgi_app)
 update_flag = True
 
 
@@ -58,29 +56,14 @@ def am():
     return ''
 
 
-def init_app():
-    globv.initConfigFile()
-    initDBSettings()
-    dump.update()
-    globv.update_logger.info('='*20 + 'video record web server' + '='*20)
-    globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
-
-
-def after_app():
-    dump.update_flag = False
-    print('called here')
-
-
 if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
-    t = threading.Thread(target=app.run,kwargs={'host':'0.0.0.0','port':globv.PORT,'debug':False})
+    t = threading.Thread(target=app.run, kwargs={
+                         'host': '0.0.0.0', 'port': globv.PORT, 'debug': False})
     t.setDaemon(True)
     t.start()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)
     globv.update_logger.info('='*20 + '  licensed by tongshi  ' + '='*20)
     restore_channels()
     dump.update_schedule()
-
-#    ldbutil.clear()
-#    dump.update_flag = False

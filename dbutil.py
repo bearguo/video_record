@@ -3,7 +3,7 @@ import configparser
 import os
 from datetime import datetime, timedelta
 import global_var as globv
-from global_var import *
+from global_var import cf
 from retry import retry
 
 global HOST, PORT, USER, PASSWORD
@@ -40,40 +40,36 @@ class Connect():
         self.connect.close()
 
 
-# def connect():
-#     conn = pymysql.connect(host=HOST,
-#                            port=PORT,
-#                            user=USER,
-#                            password=PASSWORD,
-#                            db='tsrtmp',
-#                            charset='utf8mb4',
-#                            cursorclass=pymysql.cursors.DictCursor)
-#
-#     return conn
-
-'''
-Get channel information by channel_id,return data fields.
-return dictionary
-    eg.:{'start': 0, 'sort': 0, 'rtmp_url': 'http://localhost/CCTV1.m3u8', 'client_ip': 'localhost:8080',
-             'PID': None, 'channel_name': 'CCTV1', 'channel_id': 'CCTV1', 'id': 1, 'PGID': None, 'active': 0}
-'''
-
 
 def get_channel_info(channel_id):
+    '''
+    Get channel information by channel_id,return data fields.
+    return dictionary
+    e.g.
+        {'start': 0,
+         'sort': 0, 
+         'rtmp_url': 'http://localhost/CCTV1.m3u8',
+         'client_ip': 'localhost:8080',
+         'PID': None, 
+         'channel_name': 'CCTV1', 
+         'channel_id': 'CCTV1', 
+         'id': 1, 
+         'PGID': None, 
+         'active': 0
+        }
+    '''
     with Connect() as conn:
         with conn.cursor() as cursor:
             sql = "SELECT * FROM channel WHERE channel_id = \'%s\'" % channel_id
             cursor.execute(sql)
             result = cursor.fetchone()
-            # print(result)
     return result
 
-
+'''Not used
 def get_live_url(channel_id):
     return get_channel_info(channel_id)['rtmp_url']
+'''
 
-
-@try_and_log
 def get_udp_port(channel_id):
     address = str(get_channel_info(channel_id)['client_ip'])
     port = None
@@ -86,6 +82,7 @@ def get_udp_port(channel_id):
     finally:
         return port
 
+'''Not used
 @try_and_log
 def is_start(channel_id):
     active = get_channel_info(channel_id)['start']
@@ -93,6 +90,7 @@ def is_start(channel_id):
         return True
     else:
         return False
+'''
 
 
 def set_start(channel_id, active):
@@ -128,10 +126,6 @@ def get_available_program(channel_id, START_TIME):
             cursor.execute(sql)
             result = cursor.fetchall()
     now = datetime.now()
-    # for program in result:
-    #     et = datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S')
-    #     if START_TIME < et < now:
-    #         ret.append(program)
     ret = [program for program in result if START_TIME < datetime.strptime(program['et'], '%Y-%m-%d %H:%M:%S') <= now]
     globv.update_logger.debug('ret = %s'%str(ret))
 
@@ -202,26 +196,4 @@ def delete_conflit_program(program_list):
 
 
 if __name__ == '__main__':
-    initConfigFile()
-    initDBSettings()
-    program = get_available_program('CCTV1', datetime(2017,12,24,hour=15,minute=00,second=00))
-    print(program)
-    # delete_conflit_program(program)
-    ret = get_finished_latest_date('CCTV1')
-    print(ret)
-    # print(get_started_channels())
-    # print(get_live_url('CCTV2'))
-    #
-    # print(is_start('CCTV2'))
-
-    # set_start('CCTV1',True)
-    #
-    # print(is_start('CCTV1'))
-    #
-    # set_start('CCTV1',False)
-
-    # print(get_available_program('CCTV2',datetime.now()-timedelta(days=2)))
-
-    # print("DELETE FROM program WHERE channel_id = '%s' AND end_time < DATE_SUB(NOW(), INTERVAL %d DAY)" % ('CCTV1',8))
-    #get_channel_info('CCTV1')
-    # print(get_udp_port('CCTV2'))
+    pass

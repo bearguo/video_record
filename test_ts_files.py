@@ -11,4 +11,3 @@ for f in folders:
         os.chdir(os.path.join(path, f, today))
         if not os.path.exists('ts.tmp'):
             print(f+' no stream')
-
