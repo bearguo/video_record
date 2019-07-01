@@ -17,13 +17,14 @@ services:
       options:
         max-size: "1G"
         max-file: "3"
-    restart: always
     ports:
       - 3306:3306
     networks:
       - webnet
 
   replay:
+    depends_on:
+      - replay_db
     image: replay
     deploy:
       replicas: 1
@@ -38,11 +39,12 @@ services:
         max-file: "3"
     ports:
       - 5000:5000
-    restart: always
     networks:
       - webnet
 
   record:
+    depends_on:
+      - replay_db
     image: record
     deploy:
       replicas: 1
