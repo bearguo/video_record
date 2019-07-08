@@ -61,9 +61,9 @@ services:
       TSRTMP_DB_HOST: replay_db
       TSRTMP_DB_PORT: 3306
     ports:
-    - 11000-11100:11000-11100/udp
-    - 20000-20050:20000-20050/udp
-     volumes:
+      - 11000-11100:11000-11100/udp
+      - 20000-20050:20000-20050/udp
+    volumes:
       - "/var/www/html:/var/www/html"
       - "./record_conf:/app/record_conf"
     networks:
