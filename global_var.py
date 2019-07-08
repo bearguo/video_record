@@ -18,7 +18,7 @@ def initConfigFile():
     config_folder_name = 'record_conf'
     config_file_name = 'replay.conf'
     try:
-        config_file = os.path.join(cur_path, config_folder_name,config_file_name)
+        config_file = os.path.join(cur_path, config_folder_name, config_file_name)
         if not os.path.exists(config_file):
             raise ValueError('%s is not exists in current folder!'%config_file_name)
         cf.read(config_file)

@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+  replay_db:
+    image: mysql:5.7
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - "./mysql/mysql:/var/lib/mysql"
+      - "./mysql/mysql.conf.d:/etc/mysql/mysql.conf.d"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1G"
+        max-file: "3"
+    ports:
+      - 3306:3306
+    networks:
+      - webnet
+
+  replay:
+    depends_on:
+      - replay_db
+    image: replay
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    environment:
+      TSRTMP_DB_HOST: replay_db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1G"
+        max-file: "3"
+    ports:
+      - 5000:5000
+    networks:
+      - webnet
+
+  record:
+    depends_on:
+      - replay_db
+    image: record
+    deploy:
+      replicas: 1
+      restart_policy:
+        delay: 120s
+        condition: on-failure
+        window: 180s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1G"
+        max-file: "3"
+    environment:
+      TSRTMP_DB_HOST: replay_db
+      TSRTMP_DB_PORT: 3306
+    ports:
+    - 11000-11100:11000-11100/udp
+    - 20000-20050:20000-20050/udp
+     volumes:
+      - "/var/www/html:/var/www/html"
+      - "./record_conf:/app/record_conf"
+    networks:
+      - webnet
+    
+networks:
+  webnet:

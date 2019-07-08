@@ -6,15 +6,7 @@ from string import ascii_letters
 import dateutil
 
 
-'''
-def create_random_name():
-    random_code_list = list(ascii_letters) + list('0123456789')
-    slice = random.sample(random_code_list, 4)  # select 4 elements from code_list.
-    random_string = ''.join(slice)  # list to string
-    return random_string
-'''
-
-def create_m3u8_file(channel_id,st, ts_path, file_list):
+def create_m3u8_file(channel_id, st, ts_path, file_list):
     filename = str(channel_id) + str(st) + '.m3u8'
     max = -1
     for file in file_list:
@@ -27,7 +19,8 @@ def create_m3u8_file(channel_id,st, ts_path, file_list):
         fout.write('#EXT-X-TARGETDURATION:%d\n' % max)
 
         for file in file_list:
-            fout.write('#EXTINF:' + str(dateutil.get_inf_from_filename(file)) + '\n')
+            fout.write(
+                '#EXTINF:' + str(dateutil.get_inf_from_filename(file)) + '\n')
             fout.write(file + '\n')
 
         fout.write('#EXT-X-ENDLIST')
@@ -35,6 +28,4 @@ def create_m3u8_file(channel_id,st, ts_path, file_list):
 
 
 if __name__ == '__main__':
-    # create_m3u8_file('/var/www/html/CCTV2/test.m3u8',None)
-#    print(create_random_name())
     pass

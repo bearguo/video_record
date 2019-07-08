@@ -6,9 +6,14 @@ build/
 *.spec
 *.log
 *.pid
-.vscode
+.vscode/
 dist/
 deploy/
 resources/
 test/
+<<<<<<< HEAD
 DS_Store
+=======
+.DS_Store
+requirements.txt.*
+>>>>>>> docker-develop

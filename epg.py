@@ -44,5 +44,4 @@ def update(channel_id):
 
 
 if __name__ == '__main__':
-    update('CCTV1')
-    print('update epg done')
+    pass
