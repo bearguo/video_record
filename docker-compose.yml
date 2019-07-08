@@ -49,7 +49,9 @@ services:
     deploy:
       replicas: 1
       restart_policy:
+        delay: 120s
         condition: on-failure
+        window: 180s
     logging:
       driver: "json-file"
       options:
