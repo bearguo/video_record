@@ -9,5 +9,4 @@ test/
 LICENSE
 README*
 Dockerfile
-docker-compose.*
 .*
