@@ -3,7 +3,6 @@ version: '3'
 services:
   replay_db:
     image: mysql:5.7
-    container_name: mysql
     deploy:
       replicas: 1
       restart_policy:
@@ -27,7 +26,6 @@ services:
     depends_on:
       - replay_db
     image: replay
-    container_name: replay
     deploy:
       replicas: 1
       restart_policy:
@@ -48,7 +46,6 @@ services:
     depends_on:
       - replay_db
     image: record
-    container_name: record
     deploy:
       replicas: 1
       restart_policy:
@@ -63,9 +60,6 @@ services:
     environment:
       TSRTMP_DB_HOST: 127.0.0.1
       TSRTMP_DB_PORT: 3306
-    ports:
-    - 11000-11100:11000-11100/udp
-    - 20000-20050:20000-20050/udp
     volumes:
       - "/var/www/html:/var/www/html"
       - "./record_conf:/app/record_conf"
