@@ -58,16 +58,16 @@ services:
         max-size: "1G"
         max-file: "3"
     environment:
-      TSRTMP_DB_HOST: replay_db
+      TSRTMP_DB_HOST: 127.0.0.1
       TSRTMP_DB_PORT: 3306
-    ports:
-      - 11000-11100:11000-11100/udp
-      - 20000-20050:20000-20050/udp
     volumes:
       - "/var/www/html:/var/www/html"
       - "./record_conf:/app/record_conf"
     networks:
-      - webnet
+      - host
     
 networks:
   webnet:
+  host:
+    external:
+      name: host

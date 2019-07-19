@@ -4,7 +4,6 @@ import os
 from datetime import datetime, timedelta
 import global_var as globv
 from global_var import cf
-from retry import retry
 
 global HOST, PORT, USER, PASSWORD
 
@@ -24,7 +23,6 @@ class Connect():
     def __init__(self):
         initDBSettings()
 
-    @retry(tries=-1, delay=30)
     def __enter__(self):
         global HOST, PORT, USER, PASSWORD
         self.connect = pymysql.connect(host=HOST,
