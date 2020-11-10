@@ -9,7 +9,7 @@ from flask import Flask, make_response, request
 import dump
 import global_var as globv
 from dbutil import get_started_channels, initDBSettings
-from dump import  kill, restore_channels, start_channel
+from dump import kill, restore_channels, start_channel
 from global_var import try_and_log
 
 app = Flask(__name__, static_folder='.', static_url_path='')
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     globv.initConfigFile()
     initDBSettings()
     t = threading.Thread(target=app.run, kwargs={
-                         'host': '0.0.0.0', 'port': globv.PORT, 'debug': False})
+                         'host': '0.0.0.0', 'port': 9999, 'debug': False})
     t.setDaemon(True)
     t.start()
     globv.update_logger.info('='*20 + 'video record web server' + '='*20)

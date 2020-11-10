@@ -18,9 +18,11 @@ def initConfigFile():
     config_folder_name = 'record_conf'
     config_file_name = 'replay.conf'
     try:
-        config_file = os.path.join(cur_path, config_folder_name, config_file_name)
+        config_file = os.path.join(
+            cur_path, config_folder_name, config_file_name)
         if not os.path.exists(config_file):
-            raise ValueError('%s is not exists in current folder!'%config_file_name)
+            raise ValueError(
+                '%s is not exists in current folder!' % config_file_name)
         cf.read(config_file)
         html_path = cf.get('dump', 'html_path')
         UPDATE_FREQUENCY = cf.getint('dump', 'update_frequence')
@@ -38,8 +40,9 @@ def initConfigFile():
         else:
             LOG_LEVEL = logging.DEBUG
         print('log level is', logging.getLevelName(LOG_LEVEL))
-        update_logger = logutil.getLogger(os.path.join(html_path, 'dump.log'), name='dump', level=LOG_LEVEL)
-        PORT = cf.getint('record_server', 'port')
+        update_logger = logutil.getLogger(os.path.join(
+            html_path, 'dump.log'), name='dump', level=LOG_LEVEL)
+        # PORT = cf.getint('record_server', 'port')
         EPG_URL = cf.get('dump', 'epg_url')
     except Exception as e:
         logging.exception(e)
@@ -98,5 +101,5 @@ def divide(a, b):
 
 if __name__ == '__main__':
     print(cur_path)
-    divide(1,0)
+    divide(1, 0)
     print('done')
